@@ -1,34 +1,48 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
-import { RequestUserLogin } from '@/types/users';
+import { RequestUserLogin } from './dto/auth.login.dto';
+import * as bcrypt from 'bcrypt';
+import { UsersService } from '@/users/users.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly jwtService: JwtService,
     private usersService: UsersService,
-    private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
-  // validateUser(username: string, pass: string) {
-  //   return this.usersService.validateUser(username, pass);
-  // }
+  async validateUser(password: string, password_hash: string) {
+    const isMatch = bcrypt.compareSync(password, password_hash);
+    if (isMatch) return true;
+    throw new HttpException('Password Not Match', HttpStatus.BAD_REQUEST);
+  }
 
-  // login(user: RequestUserLogin) {
-  //   const validateUser = this.validateUser(user.username, user.password);
-  //   if (validateUser) {
-  //     return { access_token: this.jwtService.sign(user) };
-  //   } else {
-  //     throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-  //   }
-  // }
+  async findByUser(username: string) {
+    const byUser = await this.usersService.findByUsername(username);
+    if (byUser) return byUser;
+    throw new HttpException('Not found user.', HttpStatus.NOT_FOUND);
+  }
 
-  auth() {
-    return 'Hello auth!';
+  async login(req: RequestUserLogin) {
+    const found = await this.findByUser(req.username);
+    await this.validateUser(req.password, found.password);
+
+    const modelUser = {
+      id: found.id,
+      username: found.user_name,
+      first_name: found.first_name,
+      last_name: found.last_name,
+      is_active: found.is_active,
+      role_name: found.role.name,
+    };
+
+    return {
+      access_token: await this.jwtService.signAsync(modelUser),
+      refresh_token: await this.jwtService.signAsync(modelUser, {
+        secret: this.configService.get('JWT_REFRESH_SECRET'),
+      }),
+    };
   }
 }

@@ -1,4 +1,4 @@
 export interface ResponseCommon<T> {
   data: T;
-  statusCode: number;
+  status_code: number;
 }

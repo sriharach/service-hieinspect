@@ -1,17 +1,13 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { GlobalExceptionFilter } from './helper/errors.interceptor';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { redisStore } from 'cache-manager-redis-yet';
-import { AuthService } from './auth/auth.service';
-import { AccessTokenStrategy } from './auth/jwt.strategy';
-import { AuthController } from './auth/auth.controller';
-import { JwtModule } from '@nestjs/jwt';
 import { DatabaseConfigModule } from './database/config.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { RoleModule } from './roles/roles.module';
+import { RealtysModule } from './realtys/realtys.module';
 
 @Module({
   providers: [{ provide: APP_FILTER, useClass: GlobalExceptionFilter }],
@@ -32,8 +28,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       },
     }),
     DatabaseConfigModule,
-    // AuthModule,
+    AuthModule,
     UsersModule,
+    RoleModule,
+    RealtysModule
   ],
 })
 export class AppModule {}

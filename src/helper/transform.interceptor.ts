@@ -19,6 +19,6 @@ export class TransformInterceptor<T>
   ): Observable<ResponseCommon<T>> {
     return next
       .handle()
-      .pipe(map((data: T) => ({ data, statusCode: HttpStatus.OK })));
+      .pipe(map((data: T) => ({ data, status_code: HttpStatus.OK })));
   }
 }

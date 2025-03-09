@@ -5,11 +5,11 @@ const configService = new ConfigService();
 
 export const connectionSource = new DataSource({
   type: 'mysql',
-  host: '27.254.144.16',
+  host: configService.get('HOST_DB'),
   port: 3306,
-  username:'hieinsp1_sriharat',
-  password: '!Folksong7154',
-  database: 'hiespect_db',
+  username: configService.get('USERNAME_DB'),
+  password: configService.get('PASSWORD_DB'),
+  database: configService.get('DATABASE_DB'),
   entities: ['**/*.entity.ts'],
   migrations: ['src/database/migrations/*.ts'],
   synchronize: false, // ปิดไว้เพื่อป้องกันการเปลี่ยนแปลงโครงสร้างโดยอัตโนมัติ

@@ -4,11 +4,21 @@ import helmet from 'helmet';
 import { LoggingInterceptor } from './helper/logging.interceptor';
 import { TransformInterceptor } from './helper/transform.interceptor';
 import { GlobalExceptionFilter } from './helper/errors.interceptor';
-import { RequestMethod } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.use(helmet());
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: 'www.hieinspect.com',
+      methods: 'GET,PUT,PATCH,POST,DELETE',
+      allowedHeaders: 'Content-Type,Authorization',
+      credentials: true, // If using cookies or authorization headers
+    },
+  });
+  app.use(
+    helmet({
+      referrerPolicy: { policy: 'strict-origin' },
+    }),
+  );
   app.useGlobalInterceptors(
     new TransformInterceptor(),
     new LoggingInterceptor(),

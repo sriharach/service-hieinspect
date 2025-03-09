@@ -28,7 +28,7 @@ export class ModelHouseImages1741173063284 implements MigrationInterface {
           },
           {
             name: 'path_name',
-            type: 'varchar(20)',
+            type: 'text',
             isNullable: true,
           },
           {

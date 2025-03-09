@@ -8,6 +8,11 @@ import { GlobalExceptionFilter } from './helper/errors.interceptor';
 import { DatabaseConfigModule } from './database/config.module';
 import { RoleModule } from './roles/roles.module';
 import { RealtysModule } from './realtys/realtys.module';
+import { CategoriesHouseModule } from './categoriesHouse/categoriesHouse.module';
+import { ModelHouseModule } from './modelHouse/modelHouse.module';
+import { MulterModule } from '@nestjs/platform-express/multer';
+import { UploadModule } from './upload/upload.module';
+import { diskStorage } from 'multer';
 
 @Module({
   providers: [{ provide: APP_FILTER, useClass: GlobalExceptionFilter }],
@@ -27,11 +32,29 @@ import { RealtysModule } from './realtys/realtys.module';
         };
       },
     }),
+    // MulterModule.registerAsync({
+    //   imports: [ConfigModule, UploadModule],
+    //   useFactory: async (configService: ConfigService) => ({
+    //     // dest: configService.get<string>('MULTER_DEST'),
+    //     storage: diskStorage({
+    //       destination: './public/uploads',
+    //       filename: (req, file, cb) => {
+    //         const filename = `${Date.now()}-${file.originalname}`;
+    //         console.log('filename :>> ', filename);
+    //         cb(null, filename);
+    //       },
+    //     }),
+    //   }),
+    //   inject: [ConfigService],
+    // }),
     DatabaseConfigModule,
     AuthModule,
     UsersModule,
     RoleModule,
-    RealtysModule
+    RealtysModule,
+    CategoriesHouseModule,
+    ModelHouseModule,
+    UploadModule,
   ],
 })
 export class AppModule {}

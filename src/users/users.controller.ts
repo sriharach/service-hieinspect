@@ -48,8 +48,8 @@ export class UsersController {
     body.id = id;
     body.updated_date = new Date();
     body.updated_by = request.user.id;
-
-    if (body.password) body.password = await bcryptHash(body.password);
+    body.password = body.password ? await bcryptHash(body.password) : undefined
+    body.created_date = undefined
     return this.userService.upsert(body);
   }
 

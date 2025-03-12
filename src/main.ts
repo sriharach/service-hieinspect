@@ -8,7 +8,7 @@ import { GlobalExceptionFilter } from './helper/errors.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: {
-      origin: 'www.hieinspect.com',
+      origin: '*',
       methods: 'GET,PUT,PATCH,POST,DELETE',
       allowedHeaders: 'Content-Type,Authorization',
       credentials: true, // If using cookies or authorization headers

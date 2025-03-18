@@ -27,26 +27,31 @@ export class ModelHouseController {
   async findAll(@Paginate() query: PaginateQuery) {
     const dataFindAll = await this.modelHouseService.findAll(query);
     const uploadDir = path.join(path.resolve('./'), 'src', 'uploads-all');
-    return dataFindAll.data.map((val) => {
-      return {
-        ...val,
-        house_images: val.house_images.map((h_img) => {
-          if (h_img.path_name && h_img.file_name) {
-            const file = fs.readFileSync(path.join(uploadDir, h_img.path_name));
-            const base64 = file.toString('base64');
-            const splitType = h_img.file_name.split('.')[1];
+    return {
+      ...dataFindAll,
+      data: dataFindAll.data.map((val) => {
+        return {
+          ...val,
+          house_images: val.house_images.map((h_img) => {
+            if (h_img.path_name && h_img.file_name) {
+              const file = fs.readFileSync(
+                path.join(uploadDir, h_img.path_name),
+              );
+              const base64 = file.toString('base64');
+              const splitType = h_img.file_name.split('.')[1];
+              return {
+                ...h_img,
+                image: `data:image/${splitType};base64,${base64}`,
+              };
+            }
             return {
               ...h_img,
-              image: `data:image/${splitType};base64,${base64}`,
+              image: null,
             };
-          }
-          return {
-            ...h_img,
-            image: null,
-          };
-        }),
-      };
-    });
+          }),
+        };
+      }),
+    };
   }
 
   @Get(':id')

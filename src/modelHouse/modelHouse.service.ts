@@ -16,7 +16,7 @@ export class ModelHouseService {
     return await paginate<ModelHouse>(query, this.modelHouseReposity, {
       sortableColumns: ['created_date'],
       defaultSortBy: [['created_date', 'DESC']],
-      relations: ['house_images'],
+      relations: ['house_images', 'category_house', 'realty'],
       where: { is_active: true },
     });
   }
@@ -40,7 +40,6 @@ export class ModelHouseService {
   }
 
   async upsert(model: ModelHouseDTO) {
-    console.log('model', model)
     const house_id = uuid();
     model.id = model.id || house_id;
 

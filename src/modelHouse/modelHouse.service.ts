@@ -23,9 +23,7 @@ export class ModelHouseService {
 
   async findByOne(id: string) {
     return await this.modelHouseReposity.findOne({
-      relations: {
-        house_images: true,
-      },
+      relations: ['house_images', 'category_house', 'realty'],
       where: { id, is_active: true },
     });
   }
@@ -45,21 +43,24 @@ export class ModelHouseService {
 
     return this.modelHouseReposity.manager.transaction(
       async (transactionalEntityManager) => {
-        if (model.house_images_upload.length > 0) {
-          await transactionalEntityManager.insert(
-            ModelHouseImage,
-            model.house_images_upload.map((image) => {
-              return {
-                ...image,
-                model_house_id: model.id,
-                created_by: model.created_by || undefined,
-                created_date: model.created_date || undefined,
-                updated_by: model.updated_by,
-                updated_date: model.updated_date,
-              };
-            }),
-          );
+        if (model.house_images_upload) {
+          if (model.house_images_upload.length > 0) {
+            await transactionalEntityManager.insert(
+              ModelHouseImage,
+              model.house_images_upload.map((image) => {
+                return {
+                  ...image,
+                  model_house_id: model.id,
+                  created_by: model.created_by || undefined,
+                  created_date: model.created_date || undefined,
+                  updated_by: model.updated_by,
+                  updated_date: model.updated_date,
+                };
+              }),
+            );
+          }
         }
+
         return await transactionalEntityManager.upsert(ModelHouse, model, {
           conflictPaths: [],
         });

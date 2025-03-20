@@ -1,3 +1,4 @@
+import { directionPath } from '@/utils/directionPath';
 import { getRandomUniqueNumbersUsingFilter } from '@/utils/rendomUnique';
 import {
   Controller,
@@ -8,6 +9,7 @@ import {
   MaxFileSizeValidator,
   Body,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -15,7 +17,7 @@ import * as path from 'path';
 // @UseGuards(JwtAuthGuard)
 @Controller('upload')
 export class UploadController {
-  constructor() {}
+  constructor(private configService: ConfigService) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
@@ -28,17 +30,9 @@ export class UploadController {
     file: Express.Multer.File,
     @Body('code_house') code_house: string, // Get 'code_house' as a string from form-data
   ) {
-    const uploadDir = path.join(path.resolve('./'), 'src', 'uploads-all');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
-
-    const eachCodeHouse = path.join(uploadDir, code_house);
-    if (!fs.existsSync(eachCodeHouse)) {
-      fs.mkdirSync(path.join(eachCodeHouse));
-    }
-
-    const changeFilename = `image-${getRandomUniqueNumbersUsingFilter(1, 90, 5).join('')}.${file.mimetype.split('image/')[1]}`;
+    const config = this.configService.get('PREFIX_NAME_FILE');
+    const eachCodeHouse = directionPath(code_house);
+    const changeFilename = `${config}-${getRandomUniqueNumbersUsingFilter(1, 90, 5).join('')}.${file.mimetype.split('image/')[1]}`;
     const filePath = path.join(eachCodeHouse, changeFilename);
 
     return new Promise((resolve, reject) => {

@@ -10,9 +10,7 @@ import { RoleModule } from './roles/roles.module';
 import { RealtysModule } from './realtys/realtys.module';
 import { CategoriesHouseModule } from './categoriesHouse/categoriesHouse.module';
 import { ModelHouseModule } from './modelHouse/modelHouse.module';
-import { MulterModule } from '@nestjs/platform-express/multer';
 import { UploadModule } from './upload/upload.module';
-import { diskStorage } from 'multer';
 
 @Module({
   providers: [{ provide: APP_FILTER, useClass: GlobalExceptionFilter }],

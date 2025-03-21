@@ -18,6 +18,7 @@ export class ModelHouseService {
       defaultSortBy: [['created_date', 'DESC']],
       relations: ['house_images', 'category_house', 'realty'],
       where: { is_active: true },
+      searchableColumns: ['name']
     });
   }
 

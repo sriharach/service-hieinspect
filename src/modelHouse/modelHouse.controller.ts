@@ -21,35 +21,41 @@ import { rmDirectionPath, rmFilePath } from '@/utils/directionPath';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ModelHouseImage } from '@/modelHouseImage/modelHouseImage.entity';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
 @UseGuards(JwtAuthGuard)
 @Controller('model_house')
 export class ModelHouseController {
   constructor(
     private modelHouseService: ModelHouseService,
+    private configService: ConfigService,
 
     @InjectRepository(ModelHouseImage)
     private modelHouseImageReposity: Repository<ModelHouseImage>,
   ) {}
 
-  protected getImageInspect(data) {
+  protected getImageInspect(data, request: TRequest) {
     const uploadDir = path.join(path.resolve('./'), 'src', 'uploads-all');
+    const serivcePath = this.configService.get<string>('SERVICE_API');
     return {
       ...data,
       data: data.data.map((val) => {
         return {
           ...val,
+          created_name:
+            request.user.id === val.created_by ? request.user.first_name : null,
           house_images: val.house_images.map((h_img) => {
             if (h_img.path_name && h_img.file_name) {
-              const file = fs.readFileSync(
-                path.join(uploadDir, h_img.path_name),
-              );
-              const base64 = file.toString('base64');
-              const splitType = h_img.file_name.split('.')[1];
-              return {
-                ...h_img,
-                image: `data:image/${splitType};base64,${base64}`,
-              };
+              const addressFile = path.join(uploadDir, h_img.path_name);
+              if (fs.existsSync(addressFile)) {
+                // const file = fs.readFileSync(addressFile);
+                // const base64 = file.toString('base64');
+                // const splitType = h_img.file_name.split('.')[1];
+                return {
+                  ...h_img,
+                  image: `${serivcePath}/${val.code_house}/${h_img.file_name}`,
+                };
+              }
             }
             return {
               ...h_img,
@@ -62,9 +68,12 @@ export class ModelHouseController {
   }
 
   @Get()
-  async findAll(@Paginate() query: PaginateQuery) {
+  async findAll(
+    @Paginate() query: PaginateQuery,
+    @Request() request: TRequest,
+  ) {
     const dataFindAll = await this.modelHouseService.findAll(query);
-    return this.getImageInspect(dataFindAll);
+    return this.getImageInspect(dataFindAll, request);
   }
 
   @Get(':id')
@@ -72,17 +81,21 @@ export class ModelHouseController {
     const responseData = await this.modelHouseService.findByOne(id);
     const uploadDir = path.join(path.resolve('./'), 'src', 'uploads-all');
 
+    const serivcePath = this.configService.get<string>('SERVICE_API');
+
     return {
       ...responseData,
       house_images: responseData.house_images.map((h_img) => {
         if (h_img.path_name && h_img.file_name) {
-          const file = fs.readFileSync(path.join(uploadDir, h_img.path_name));
-          const base64 = file.toString('base64');
-          const splitType = h_img.file_name.split('.')[1];
-          return {
-            ...h_img,
-            image: `data:image/${splitType};base64,${base64}`,
-          };
+          const addressFile = path.join(uploadDir, h_img.path_name);
+          if (fs.existsSync(addressFile)) {
+            // const base64 = fs.readFileSync(addressFile).toString('base64');
+            // const splitType = h_img.file_name.split('.')[1];
+            return {
+              ...h_img,
+              image: `${serivcePath}/${responseData.code_house}/${h_img.file_name}`,
+            };
+          }
         }
         return {
           ...h_img,
@@ -97,7 +110,9 @@ export class ModelHouseController {
     body.created_by = request.user.id;
     body.created_date = new Date();
 
-    const basePathHouse = `hiehouse-${getRandomUniqueNumbersUsingFilter(1, 90, 4).join('')}`;
+    const PREFIX_NAME_PATH_NAME = this.configService.get<string>('PREFIX_NAME_PATH_NAME');
+
+    const basePathHouse = `${PREFIX_NAME_PATH_NAME}-${getRandomUniqueNumbersUsingFilter(1, 90, 4).join('')}`;
     body.code_house = basePathHouse;
 
     const response = await this.modelHouseService.upsert(body);
@@ -116,6 +131,7 @@ export class ModelHouseController {
     try {
       body.id = id;
       body.updated_by = request.user.id;
+      body.created_by = request.user.id;
       body.updated_date = new Date();
       body.house_images_upload =
         body.house_images_upload.length > 0

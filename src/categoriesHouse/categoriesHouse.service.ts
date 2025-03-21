@@ -3,14 +3,26 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CategoriesHouse } from './categoriesHouse.entity';
 import { ModelCategories } from './dto/modelCategories.dto';
+import { paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Injectable()
 export class categoriesHouseService {
   @InjectRepository(CategoriesHouse)
   private categoriesRepository: Repository<CategoriesHouse>;
 
-  async findAll() {
-    return await this.categoriesRepository.find({ where: { is_active: true } });
+  async findAllSelect() {
+    return await this.categoriesRepository.find({ where: { is_active: true }, select: ['name','id'] });
+  }
+
+  async findAll(query: PaginateQuery) {
+    return await paginate<CategoriesHouse>(query, this.categoriesRepository, {
+      sortableColumns: ['created_date'],
+      defaultSortBy: [['created_date', 'DESC']],
+      where: {
+        is_active: true
+      },
+      searchableColumns: ['name']
+    });
   }
 
   async findByOne(id: string) {

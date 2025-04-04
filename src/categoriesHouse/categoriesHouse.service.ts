@@ -10,12 +10,16 @@ export class categoriesHouseService {
   private categoriesRepository: Repository<CategoriesHouse>;
 
   async findAll() {
-    return await this.categoriesRepository.find({ where: { is_active: true } });
+    return await this.categoriesRepository.find({
+      where: { is_active: true },
+      select: ['id', 'name', 'created_by'],
+    });
   }
 
   async findByOne(id: string) {
     return await this.categoriesRepository.findOne({
       where: { id, is_active: true },
+      select: ['id', 'name', 'created_by'],
     });
   }
 

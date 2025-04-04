@@ -18,7 +18,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { getRandomUniqueNumbersUsingFilter } from '@/utils/rendomUnique';
 
-@UseGuards(JwtAuthGuard)
 @Controller('model_house')
 export class ModelHouseController {
   constructor(private modelHouseService: ModelHouseService) {}
@@ -49,11 +48,13 @@ export class ModelHouseController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   findByOne(@Param('id') id: string) {
     return this.modelHouseService.findByOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async insert(@Body() body: ModelHouse, @Request() request: TRequest) {
     body.created_by = request.user.id;
@@ -69,6 +70,7 @@ export class ModelHouseController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async upsert(
     @Body() body: ModelHouse,
@@ -81,6 +83,7 @@ export class ModelHouseController {
     return this.modelHouseService.upsert(body);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.modelHouseService.delete(id);

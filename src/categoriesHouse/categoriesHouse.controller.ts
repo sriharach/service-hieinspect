@@ -14,7 +14,6 @@ import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { ModelCategories } from './dto/modelCategories.dto';
 import { categoriesHouseService } from './categoriesHouse.service';
 
-@UseGuards(JwtAuthGuard)
 @Controller('category_house')
 export class CategoriesController {
   constructor(private categoriesHouseService: categoriesHouseService) {}
@@ -23,12 +22,13 @@ export class CategoriesController {
   findAll() {
     return this.categoriesHouseService.findAll();
   }
-
+  
   @Get(':id')
   findByOne(@Param('id') id: string) {
     return this.categoriesHouseService.findByOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async insert(@Body() body: ModelCategories, @Request() request: TRequest) {
     body.created_by = request.user.id;
@@ -36,6 +36,7 @@ export class CategoriesController {
     return this.categoriesHouseService.upsert(body);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async upsert(
     @Body() body: ModelCategories,
@@ -48,6 +49,7 @@ export class CategoriesController {
     return this.categoriesHouseService.upsert(body);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.categoriesHouseService.delete(id);

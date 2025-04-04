@@ -29,12 +29,15 @@ export class RoleController {
 
   @Post()
   async insert(@Body() body: ModelRoles) {
+    body.created_date = new Date();
     return this.roleService.upsert(body);
   }
 
   @Put(':id')
   async upsert(@Body() body: ModelRoles, @Param('id') id: string) {
     body.id = id;
+    body.created_date = undefined;
+    body.updated_date = new Date();
     return this.roleService.upsert(body);
   }
 

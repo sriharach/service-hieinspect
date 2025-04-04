@@ -22,8 +22,20 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get()
-  findAll(@Paginate() query: PaginateQuery) {
-    return this.userService.findAll(query);
+  async findAll(
+    @Paginate() query: PaginateQuery,
+    @Request() request: Trequest,
+  ) {
+    const responseData = await this.userService.findAll(query);
+    return {
+      ...responseData,
+      data: responseData.data.map((user) => {
+        return {
+          ...user,
+          created_name: user.created_by === request.user.id ? request.user.first_name : null,
+        };
+      }),
+    };
   }
 
   @Get(':id')
@@ -33,7 +45,7 @@ export class UsersController {
 
   @Post()
   async insert(@Body() body: ModelUser, @Request() request: Trequest) {
-    body.password = await bcryptHash(body.password);
+    body.password = await bcryptHash(body.user_name);
     body.created_date = new Date();
     body.created_by = request.user.id;
     return this.userService.upsert(body);
@@ -48,8 +60,9 @@ export class UsersController {
     body.id = id;
     body.updated_date = new Date();
     body.updated_by = request.user.id;
-
-    if (body.password) body.password = await bcryptHash(body.password);
+    body.created_by = request.user.id;
+    body.password = body.password ? await bcryptHash(body.password) : undefined;
+    body.created_date = undefined;
     return this.userService.upsert(body);
   }
 

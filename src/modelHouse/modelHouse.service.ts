@@ -16,16 +16,15 @@ export class ModelHouseService {
     return await paginate<ModelHouse>(query, this.modelHouseReposity, {
       sortableColumns: ['created_date'],
       defaultSortBy: [['created_date', 'DESC']],
-      relations: ['house_images'],
+      relations: ['house_images', 'category_house', 'realty'],
       where: { is_active: true },
+      searchableColumns: ['name'],
     });
   }
 
   async findByOne(id: string) {
     return await this.modelHouseReposity.findOne({
-      relations: {
-        house_images: true,
-      },
+      relations: ['house_images', 'category_house', 'realty'],
       where: { id, is_active: true },
     });
   }
@@ -40,27 +39,29 @@ export class ModelHouseService {
   }
 
   async upsert(model: ModelHouseDTO) {
-    console.log('model', model)
     const house_id = uuid();
     model.id = model.id || house_id;
 
     return this.modelHouseReposity.manager.transaction(
       async (transactionalEntityManager) => {
-        if (model.house_images_upload.length > 0) {
-          await transactionalEntityManager.insert(
-            ModelHouseImage,
-            model.house_images_upload.map((image) => {
-              return {
-                ...image,
-                model_house_id: model.id,
-                created_by: model.created_by || undefined,
-                created_date: model.created_date || undefined,
-                updated_by: model.updated_by,
-                updated_date: model.updated_date,
-              };
-            }),
-          );
+        if (model.house_images_upload) {
+          if (model.house_images_upload.length > 0) {
+            await transactionalEntityManager.insert(
+              ModelHouseImage,
+              model.house_images_upload.map((image) => {
+                return {
+                  ...image,
+                  model_house_id: model.id,
+                  created_by: model.created_by || undefined,
+                  created_date: model.created_date || undefined,
+                  updated_by: model.updated_by,
+                  updated_date: model.updated_date,
+                };
+              }),
+            );
+          }
         }
+
         return await transactionalEntityManager.upsert(ModelHouse, model, {
           conflictPaths: [],
         });

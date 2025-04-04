@@ -1,10 +1,13 @@
+import { CategoriesHouse } from '@/categoriesHouse/categoriesHouse.entity';
 import { ModelHouseImage } from '@/modelHouseImage/modelHouseImage.entity';
+import { Realtys } from '@/realtys/realtys.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   OneToMany,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 
 @Entity('model_house')
@@ -40,9 +43,17 @@ export class ModelHouse {
   updated_by: string;
 
   @Column()
-  code_house: string
+  code_house: string;
 
   @OneToMany(() => ModelHouseImage, (house) => house.house)
   @JoinColumn({ referencedColumnName: 'model_house_id' })
   house_images: ModelHouseImage[];
+
+  @OneToOne(() => CategoriesHouse)
+  @JoinColumn({ name: 'category_house_id', referencedColumnName: 'id' })
+  category_house: CategoriesHouse;
+
+  @OneToOne(() => Realtys)
+  @JoinColumn({ name: 'realitys_id', referencedColumnName: 'id' })
+  realty: Realtys;
 }

@@ -23,9 +23,11 @@ export class UsersService {
         'last_name',
         'is_active',
         'created_date',
+        'created_by',
         'role.id',
         'role.name',
       ],
+      searchableColumns: ['user_name', 'first_name']
     });
   }
 

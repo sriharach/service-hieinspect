@@ -20,8 +20,14 @@ export class RealtysController {
   constructor(private realtysService: RealtysService) {}
 
   @Get()
-  findAll() {
-    return this.realtysService.findAll();
+  async findAll(@Request() request: Trequest) {
+    const responseData = await this.realtysService.findAll();
+    return responseData.map((realty) => {
+      return {
+        ...realty,
+        created_name: request.user.id === realty.created_by ? request.user.first_name : null
+      }
+    })
   }
 
   @Get(':id')
@@ -45,6 +51,7 @@ export class RealtysController {
     body.id = id;
     body.updated_by = request.user.id;
     body.updated_date = new Date();
+    body.created_by = request.user.id;
     return this.realtysService.upsert(body);
   }
 

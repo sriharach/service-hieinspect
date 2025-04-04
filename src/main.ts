@@ -4,11 +4,13 @@ import helmet from 'helmet';
 import { LoggingInterceptor } from './helper/logging.interceptor';
 import { TransformInterceptor } from './helper/transform.interceptor';
 import { GlobalExceptionFilter } from './helper/errors.interceptor';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as path from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
-      origin: 'www.hieinspect.com',
+      origin: '*',
       methods: 'GET,PUT,PATCH,POST,DELETE',
       allowedHeaders: 'Content-Type,Authorization',
       credentials: true, // If using cookies or authorization headers
@@ -17,14 +19,21 @@ async function bootstrap() {
   app.use(
     helmet({
       referrerPolicy: { policy: 'strict-origin' },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
+  app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+  });
+
   app.useGlobalInterceptors(
     new TransformInterceptor(),
     new LoggingInterceptor(),
   );
   app.useGlobalFilters(new GlobalExceptionFilter());
-
+  // serve-static
+  app.useStaticAssets(path.join(__dirname, '..', 'src', 'uploads-all'));
   app.setGlobalPrefix('api');
   await app.listen(process.env.PORT ?? 3000);
 }

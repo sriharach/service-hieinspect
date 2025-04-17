@@ -10,7 +10,10 @@ export class RealtysService {
   private realtysRepository: Repository<Realtys>;
 
   async findAll() {
-    return await this.realtysRepository.find({ where: { is_active: true } });
+    return await this.realtysRepository.find({
+      where: { is_active: true },
+      select: ['id', 'created_by', 'name', 'is_active'],
+    });
   }
 
   async findByOne(id: string) {

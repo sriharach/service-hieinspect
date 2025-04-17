@@ -27,7 +27,6 @@ export class UploadController {
   @Get('file/:file_name')
   GetFile(@Param('file_name') file_name: string, @Response() res: TResponse){
     const imagePath = path.join(process.cwd(), 'public', file_name);
-    console.log('imagePath :>> ', imagePath);
     return res.send(imagePath)
   }
 
@@ -58,7 +57,7 @@ export class UploadController {
     // resize
     const resizeBuffer = await sharp(file.buffer)
       .toFormat('webp')
-      .webp({ quality: 90 })
+      .webp({ quality: 80 })
       .toBuffer();
 
     return new Promise((resolve, reject) => {

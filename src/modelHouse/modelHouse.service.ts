@@ -12,12 +12,37 @@ export class ModelHouseService {
   @InjectRepository(ModelHouse)
   private modelHouseReposity: Repository<ModelHouse>;
 
-  async findAll(query: PaginateQuery) {
+  async findAll(query: PaginateQuery, category_id: string) {
+    const buildWhere = (category_id?: string) => {
+      const where: any = { is_active: true };
+      if (category_id) {
+        where.category_house_id = category_id;
+      }
+      return where;
+    };
+
     return await paginate<ModelHouse>(query, this.modelHouseReposity, {
       sortableColumns: ['created_date'],
       defaultSortBy: [['created_date', 'DESC']],
       relations: ['house_images', 'category_house', 'realty'],
-      where: { is_active: true },
+      select: [
+        'id',
+        'category_house_id',
+        'realitys_id',
+        'service_category_house_id',
+        'name',
+        'created_date',
+        'created_by',
+        'code_house',
+        'house_images.id',
+        'house_images.file_name',
+        'house_images.path_name',
+        'category_house.id',
+        'category_house.name',
+        'realty.id',
+        'realty.name'
+      ],
+      where: buildWhere(category_id),
       searchableColumns: ['name'],
     });
   }

@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   Request,
+  Query,
 } from '@nestjs/common';
 import { Request as TRequest } from 'express';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
@@ -41,8 +42,11 @@ export class ModelHouseController {
       data: data.data.map((val) => {
         return {
           ...val,
-          created_name:
-            request.user.id === val.created_by ? request.user.first_name : null,
+          created_name: request.user
+            ? request.user.id === val.created_by
+              ? request.user.first_name
+              : null
+            : null,
           house_images: val.house_images.map((h_img) => {
             if (h_img.path_name && h_img.file_name) {
               const addressFile = path.join(uploadDir, h_img.path_name);
@@ -70,8 +74,12 @@ export class ModelHouseController {
   async findAll(
     @Paginate() query: PaginateQuery,
     @Request() request: TRequest,
+    @Query('category_id') category_id: string,
   ) {
-    const dataFindAll = await this.modelHouseService.findAll(query);
+    const dataFindAll = await this.modelHouseService.findAll(
+      query,
+      category_id,
+    );
     return this.getImageInspect(dataFindAll, request);
   }
 

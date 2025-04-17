@@ -14,7 +14,6 @@ import { ModelRealtys } from './dto/modelRealtys.dro';
 import { RealtysService } from './realtys.service';
 import { Request as Trequest } from 'express';
 
-@UseGuards(JwtAuthGuard)
 @Controller('realtys')
 export class RealtysController {
   constructor(private realtysService: RealtysService) {}
@@ -25,7 +24,7 @@ export class RealtysController {
     return responseData.map((realty) => {
       return {
         ...realty,
-        created_name: request.user.id === realty.created_by ? request.user.first_name : null
+        created_name: request.user ? request.user.id === realty.created_by ? request.user.first_name : null : null
       }
     })
   }
@@ -35,6 +34,7 @@ export class RealtysController {
     return this.realtysService.findByOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async insert(@Body() body: ModelRealtys, @Request() request: Trequest) {
     body.created_by = request.user.id;
@@ -42,6 +42,7 @@ export class RealtysController {
     return this.realtysService.upsert(body);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async upsert(
     @Body() body: ModelRealtys,
@@ -55,6 +56,7 @@ export class RealtysController {
     return this.realtysService.upsert(body);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.realtysService.delete(id);

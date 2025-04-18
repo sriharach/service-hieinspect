@@ -18,16 +18,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
-
-      response.status(status).json({
-        status_code: (exception as any).response.statusCode,
-        message:  (exception as any).response.message,
-      });
     }
 
     response.status(status).json({
       status_code: status,
-      message: exception.message,
+      message: (exception as any).response
+        ? (exception as any).response.message || exception.message
+        : exception.message,
     });
   }
 }

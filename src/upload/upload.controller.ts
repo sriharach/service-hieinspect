@@ -56,9 +56,10 @@ export class UploadController {
 
     // resize
     const resizeBuffer = await sharp(file.buffer)
-      .toFormat('webp')
-      .webp({ quality: 80 })
-      .toBuffer();
+    .rotate()
+    .webp({ quality: 80 }) // ปรับคุณภาพตามต้องการ
+    .withMetadata() // ไม่ใส่ EXIF กลับไป
+    .toBuffer();
 
     return new Promise((resolve, reject) => {
       // Create write stream

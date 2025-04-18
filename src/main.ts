@@ -5,6 +5,7 @@ import { LoggingInterceptor } from './helper/logging.interceptor';
 import { TransformInterceptor } from './helper/transform.interceptor';
 import { GlobalExceptionFilter } from './helper/errors.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationPipe } from '@nestjs/common';
 import * as path from 'path';
 
 async function bootstrap() {
@@ -32,6 +33,7 @@ async function bootstrap() {
     new LoggingInterceptor(),
   );
   app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalPipes(new ValidationPipe()); // ✅ ใช้ global validation pipe
   // serve-static
   app.useStaticAssets(path.join(__dirname, '..', 'src', 'uploads-all'));
   app.setGlobalPrefix('api');

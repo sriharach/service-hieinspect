@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { Request as TRequest } from 'express';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
-import { ModelHouse } from './dto/modelHouse.dto';
+import { ModelHouse, ModelHouseID } from './dto/modelHouse.dto';
 import { ModelHouseService } from './modelHouse.service';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import * as path from 'path';
@@ -47,24 +47,24 @@ export class ModelHouseController {
               ? request.user.first_name
               : null
             : null,
-          house_images: val.house_images.map((h_img) => {
-            if (h_img.path_name && h_img.file_name) {
-              const addressFile = path.join(uploadDir, h_img.path_name);
-              if (fs.existsSync(addressFile)) {
-                // const file = fs.readFileSync(addressFile);
-                // const base64 = file.toString('base64');
-                // const splitType = h_img.file_name.split('.')[1];
-                return {
-                  ...h_img,
-                  image: `${serivcePath}/${val.code_house}/${h_img.file_name}`,
-                };
-              }
-            }
-            return {
-              ...h_img,
-              image: null,
-            };
-          }),
+          // house_images: val.house_images.map((h_img) => {
+          //   if (h_img.path_name && h_img.file_name) {
+          //     const addressFile = path.join(uploadDir, h_img.path_name);
+          //     if (fs.existsSync(addressFile)) {
+          //       // const file = fs.readFileSync(addressFile);
+          //       // const base64 = file.toString('base64');
+          //       // const splitType = h_img.file_name.split('.')[1];
+          //       return {
+          //         ...h_img,
+          //         image: `${serivcePath}/${val.code_house}/${h_img.file_name}`,
+          //       };
+          //     }
+          //   }
+          //   return {
+          //     ...h_img,
+          //     image: null,
+          //   };
+          // }),
         };
       }),
     };
@@ -84,8 +84,8 @@ export class ModelHouseController {
   }
 
   @Get(':id')
-  async findByOne(@Param('id') id: string) {
-    const responseData = await this.modelHouseService.findByOne(id);
+  async findByOne(@Param() params: ModelHouseID) {
+    const responseData = await this.modelHouseService.findByOne(params.id);
     const uploadDir = path.join(path.resolve('./'), 'src', 'uploads-all');
 
     const serivcePath = this.configService.get<string>('SERVICE_API');

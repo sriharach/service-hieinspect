@@ -32,6 +32,14 @@
 $ yarn install
 ```
 
+## 📜 Migration Commands
+
+Generate a migration file based on entity changes:
+
+```bash
+$ npm run migration:generate --name=MigrationName
+```
+
 ## Compile and run the project
 
 ```bash

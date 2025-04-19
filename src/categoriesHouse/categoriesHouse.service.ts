@@ -11,24 +11,29 @@ export class categoriesHouseService {
   private categoriesRepository: Repository<CategoriesHouse>;
 
   async findAllSelect() {
-    return await this.categoriesRepository.find({ where: { is_active: true },  select: ['id', 'name', 'created_by'] });
+    return await this.categoriesRepository.find({
+      where: { is_active: true },
+      select: ['id', 'name', 'created_by'],
+      order: { name: 'ASC' },
+    });
   }
 
   async findAll(query: PaginateQuery) {
     return await paginate<CategoriesHouse>(query, this.categoriesRepository, {
       sortableColumns: ['created_date'],
       defaultSortBy: [['created_date', 'DESC']],
+      select: ['id' ,'name', 'created_date', 'code_categories', 'cover_image'],
       where: {
-        is_active: true
+        is_active: true,
       },
-      searchableColumns: ['name']
+      searchableColumns: ['name'],
     });
   }
 
   async findByOne(id: string) {
     return await this.categoriesRepository.findOne({
       where: { id, is_active: true },
-      select: ['id', 'name', 'created_by'],
+      select: ['id', 'name', 'created_date'],
     });
   }
 

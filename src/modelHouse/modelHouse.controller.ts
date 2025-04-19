@@ -23,6 +23,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ModelHouseImage } from '@/modelHouseImage/modelHouseImage.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
+import { getPathServiceUpload } from '@/utils/getPathServiceUpload';
 
 @Controller('model_house')
 export class ModelHouseController {
@@ -35,13 +36,23 @@ export class ModelHouseController {
   ) {}
 
   protected getImageInspect(data, request: TRequest) {
-    const uploadDir = path.join(path.resolve('./'), 'src', 'uploads-all');
-    const serivcePath = this.configService.get<string>('SERVICE_API');
+    const { uploadDir, serivcePath } = getPathServiceUpload();
     return {
       ...data,
       data: data.data.map((val) => {
         return {
           ...val,
+          cover_image_house:
+            val.code_house && val.main_img_house
+              ? fs.existsSync(
+                  path.join(
+                    uploadDir,
+                    `/${val.code_house}/${val.main_img_house}`,
+                  ),
+                )
+                ? `${serivcePath}/${val.code_house}/${val.main_img_house}`
+                : null
+              : null,
           created_name: request.user
             ? request.user.id === val.created_by
               ? request.user.first_name
@@ -86,12 +97,21 @@ export class ModelHouseController {
   @Get(':id')
   async findByOne(@Param() params: ModelHouseID) {
     const responseData = await this.modelHouseService.findByOne(params.id);
-    const uploadDir = path.join(path.resolve('./'), 'src', 'uploads-all');
-
-    const serivcePath = this.configService.get<string>('SERVICE_API');
+    const { uploadDir, serivcePath } = getPathServiceUpload();
 
     return {
       ...responseData,
+      cover_image_house:
+        responseData.code_house && responseData.main_img_house
+          ? fs.existsSync(
+              path.join(
+                uploadDir,
+                `/${responseData.code_house}/${responseData.main_img_house}`,
+              ),
+            )
+            ? `${serivcePath}/${responseData.code_house}/${responseData.main_img_house}`
+            : null
+          : null,
       house_images: responseData.house_images.map((h_img) => {
         if (h_img.path_name && h_img.file_name) {
           const addressFile = path.join(uploadDir, h_img.path_name);

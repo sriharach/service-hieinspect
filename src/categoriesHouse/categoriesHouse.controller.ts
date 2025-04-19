@@ -11,30 +11,45 @@ import {
 } from '@nestjs/common';
 import { Request as TRequest } from 'express';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
-import { ModelCategories } from './dto/modelCategories.dto';
+import { ModelCategories, ModelCategoriesID } from './dto/modelCategories.dto';
 import { categoriesHouseService } from './categoriesHouse.service';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { getPathServiceUpload } from '@/utils/getPathServiceUpload';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller('category_house')
 export class CategoriesController {
   constructor(private categoriesHouseService: categoriesHouseService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(
     @Paginate() query: PaginateQuery,
     @Request() request: TRequest,
   ) {
     const responseData = await this.categoriesHouseService.findAll(query);
+    const { uploadDir, serivcePath } = getPathServiceUpload();
     return {
       ...responseData,
       data: responseData.data.map((category) => {
         return {
           ...category,
-          created_name:
-            request.user.id === category.created_by
-              ? request.user.first_name
+          cover_image_category:
+            category.cover_image && category.code_categories
+              ? fs.existsSync(
+                  path.join(
+                    uploadDir,
+                    `/${category.code_categories}/${category.cover_image}`,
+                  ),
+                )
+                ? `${serivcePath}/${category.code_categories}/${category.cover_image}`
+                : null
               : null,
+          created_name: request.user
+            ? request.user.id === category.created_by
+              ? request.user.first_name
+              : null
+            : null,
         };
       }),
     };
@@ -44,10 +59,10 @@ export class CategoriesController {
   findAllSelect() {
     return this.categoriesHouseService.findAllSelect();
   }
-  
+
   @Get(':id')
-  findByOne(@Param('id') id: string) {
-    return this.categoriesHouseService.findByOne(id);
+  findByOne(@Param('id') params: ModelCategoriesID) {
+    return this.categoriesHouseService.findByOne(params.id);
   }
 
   @UseGuards(JwtAuthGuard)

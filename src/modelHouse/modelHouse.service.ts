@@ -24,7 +24,7 @@ export class ModelHouseService {
     return await paginate<ModelHouse>(query, this.modelHouseReposity, {
       sortableColumns: ['created_date'],
       defaultSortBy: [['created_date', 'DESC']],
-      relations: ['house_images', 'category_house', 'realty'],
+      relations: ['category_house', 'realty'],
       select: [
         'id',
         'category_house_id',
@@ -32,15 +32,11 @@ export class ModelHouseService {
         'service_category_house_id',
         'name',
         'created_date',
-        'created_by',
         'code_house',
-        'house_images.id',
-        'house_images.file_name',
-        'house_images.path_name',
         'category_house.id',
         'category_house.name',
         'realty.id',
-        'realty.name'
+        'realty.name',
       ],
       where: buildWhere(category_id),
       searchableColumns: ['name'],
@@ -49,7 +45,25 @@ export class ModelHouseService {
 
   async findByOne(id: string) {
     return await this.modelHouseReposity.findOne({
-      relations: ['house_images', 'category_house', 'realty'],
+      relations: { realty: true, house_images: true, category_house: true },
+      select: {
+        id: true,
+        name: true,
+        created_date: true,
+        realty: {
+          id: true,
+          name: true,
+        },
+        category_house: {
+          id: true,
+          name: true,
+        },
+        house_images: {
+          id: true,
+          file_name: true,
+          path_name: true,
+        },
+      },
       where: { id, is_active: true },
     });
   }

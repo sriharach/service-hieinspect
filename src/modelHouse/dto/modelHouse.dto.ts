@@ -11,6 +11,7 @@ export class ModelHouse extends ModalEntityRaw {
   realitys_id?: string
   house_images_upload: Pick<ModelHouseImage, 'path_name' | 'file_name'>[]
   code_house?: string
+  main_img_house?: string
 
   include_filename?: string[]
   exclude_filename?: string[]

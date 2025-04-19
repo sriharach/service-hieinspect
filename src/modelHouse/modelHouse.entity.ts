@@ -45,6 +45,9 @@ export class ModelHouse {
   @Column()
   code_house: string;
 
+  @Column()
+  main_img_house: string;
+
   @OneToMany(() => ModelHouseImage, (house) => house.house)
   @JoinColumn({ referencedColumnName: 'model_house_id' })
   house_images: ModelHouseImage[];

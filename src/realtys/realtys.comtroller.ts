@@ -10,28 +10,44 @@ import {
   Request,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
-import { ModelRealtys } from './dto/modelRealtys.dro';
+import { ModelRealtys, ModelRealtysID } from './dto/modelRealtys.dro';
 import { RealtysService } from './realtys.service';
 import { Request as Trequest } from 'express';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('realtys')
 export class RealtysController {
   constructor(private realtysService: RealtysService) {}
 
   @Get()
-  async findAll(@Request() request: Trequest) {
-    const responseData = await this.realtysService.findAll();
-    return responseData.map((realty) => {
-      return {
-        ...realty,
-        created_name: request.user ? request.user.id === realty.created_by ? request.user.first_name : null : null
-      }
-    })
+  async findAll(
+    @Paginate() query: PaginateQuery,
+    @Request() request: Trequest,
+  ) {
+    const responseData = await this.realtysService.findAll(query);
+    return {
+      ...responseData,
+      data: responseData.data.map((realty) => {
+        return {
+          ...realty,
+          created_name: request.user
+            ? request.user.id === realty.created_by
+              ? request.user.first_name
+              : null
+            : null,
+        };
+      }),
+    };
+  }
+
+  @Get('all')
+  findAllSelect() {
+    return this.realtysService.findAllSelect();
   }
 
   @Get(':id')
-  findByOne(@Param('id') id: string) {
-    return this.realtysService.findByOne(id);
+  findByOne(@Param('id') params: ModelRealtysID) {
+    return this.realtysService.findByOne(params.id);
   }
 
   @UseGuards(JwtAuthGuard)

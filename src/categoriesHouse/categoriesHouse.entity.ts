@@ -22,4 +22,10 @@ export class CategoriesHouse {
 
   @Column()
   updated_by: string;
+
+  @Column()
+  cover_image: string;
+
+  @Column()
+  code_categories: string;
 }
